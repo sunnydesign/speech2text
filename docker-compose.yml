@@ -9,4 +9,4 @@ services:
       - .env
     volumes:
       - ./tmp:/app/tmp
-      - ./speech2text:/app
+      - ./:/app

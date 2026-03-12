@@ -93,6 +93,9 @@ async def worker(app):
         )
 
         # Сохраняем в MySQL
+        conn = get_connection()
+        cursor = conn.cursor()
+
         if conn:
             try:
                 cursor.execute(
