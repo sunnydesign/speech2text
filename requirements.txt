@@ -44,3 +44,4 @@ typer==0.24.1
 typing_extensions==4.15.0
 yarl==1.23.0
 python-dotenv==1.2.2
+mysql-connector-python

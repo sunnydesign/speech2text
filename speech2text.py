@@ -3,6 +3,7 @@ import asyncio
 import logging
 import time
 from dotenv import load_dotenv
+from db import get_connection
 from telegram import Update
 from telegram.ext import ApplicationBuilder, MessageHandler, filters, ContextTypes
 from faster_whisper import WhisperModel
@@ -25,6 +26,17 @@ logger = logging.getLogger(__name__)
 # Загружаем переменные окружения
 # -------------------------------
 load_dotenv()  # читает .env
+
+# -------------------------------
+# Подключаем MySQL
+# -------------------------------
+conn = get_connection()
+if conn:
+    cursor = conn.cursor()
+    cursor.execute("SELECT NOW();")
+    logger.info(f"MySQL connected, time: {cursor.fetchone()}")
+else:
+    logger.info("Не удалось подключиться к MySQL")
 
 # -------------------------------
 # Настройки
@@ -79,6 +91,21 @@ async def worker(app):
         logger.info(
             f"Transcription finished | user_id={user.id} | time={duration:.2f}s"
         )
+
+        # Сохраняем в MySQL
+        if conn:
+            try:
+                cursor.execute(
+                    """
+                    INSERT INTO audio_jobs (user_id, username, file_name, transcript, created_at)
+                    VALUES (%s, %s, %s, %s, NOW())
+                    """,
+                    (user.id, user.username, f"{file_id}.ogg", text)
+                )
+                conn.commit()
+                logger.info(f"Saved job to DB | user_id={user.id} file={file_id}.ogg")
+            except Exception as e:
+                logger.error(f"Failed to save job to DB: {e}")
 
         # Отправляем результат
         if text:
