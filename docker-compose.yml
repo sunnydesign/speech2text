@@ -1,0 +1,11 @@
+version: "3"
+
+services:
+  speech2text:
+    build: .
+    container_name: speech2text
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ./tmp:/app/tmp

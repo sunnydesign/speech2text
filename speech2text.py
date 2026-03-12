@@ -1,5 +1,6 @@
 import os
 import asyncio
+from dotenv import load_dotenv
 from telegram import Update
 from telegram.ext import ApplicationBuilder, MessageHandler, filters, ContextTypes
 from faster_whisper import WhisperModel
